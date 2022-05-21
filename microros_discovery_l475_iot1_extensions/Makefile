@@ -29,7 +29,13 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+#BUILD_DIR = build
+#######################################
+# Build path
+EXTENSIONS_DIR = $(shell pwd)
+TOPFOLDER = $(EXTENSIONS_DIR)/../..
+UROS_DIR = $(TOPFOLDER)/mcu_ws
+BUILD_DIR = $(EXTENSIONS_DIR)/build
 
 ######################################
 # source
@@ -173,6 +179,47 @@ LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BU
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+#######################################
+# build micro-ROS
+#######################################
+
+arm_toolchain: $(EXTENSIONS_DIR)/arm_toolchain.cmake.in
+	rm -f $(EXTENSIONS_DIR)/arm_toolchain.cmake; \
+	cat $(EXTENSIONS_DIR)/arm_toolchain.cmake.in | \
+		sed "s/@CROSS_COMPILE@/$(subst /,\/,$(CROSS_COMPILE))/g" | \
+		sed "s/@FREERTOS_TOPDIR@/$(subst /,\/,$(TOPFOLDER))/g" | \
+		sed "s/@ARCH_CPU_FLAGS@/\"$(ARCHCPUFLAGS)\"/g" | \
+		sed "s/@ARCH_OPT_FLAGS@/\"$(ARCHOPTIMIZATION)\"/g" | \
+		sed "s/@INCLUDES@/$(subst /,\/,$(COLCON_INCLUDES_STR))/g" \
+		> $(EXTENSIONS_DIR)/arm_toolchain.cmake
+
+colcon_compile: arm_toolchain
+	cd $(UROS_DIR); \
+	colcon build \
+		--packages-ignore-regex=.*_cpp \
+		--metas $(UROS_DIR)/colcon.meta $(UROS_APP_FOLDER)/app-colcon.meta \
+		--cmake-args \
+		"--no-warn-unused-cli" \
+		-DCMAKE_POSITION_INDEPENDENT_CODE=OFF \
+		-DTHIRDPARTY=ON \
+		-DBUILD_SHARED_LIBS=OFF \
+		-DBUILD_TESTING=OFF \
+		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DCMAKE_TOOLCHAIN_FILE=$(EXTENSIONS_DIR)/arm_toolchain.cmake \
+		-DCMAKE_VERBOSE_MAKEFILE=ON; \
+
+libmicroros: colcon_compile
+	mkdir -p $(UROS_DIR)/libmicroros; cd $(UROS_DIR)/libmicroros; \
+	for file in $$(find $(UROS_DIR)/install/ -name '*.a'); do \
+		folder=$$(echo $$file | sed -E "s/(.+)\/(.+).a/\2/"); \
+		mkdir -p $$folder; cd $$folder; ar x $$file; \
+		for f in *; do \
+			mv $$f ../$$folder-$$f; \
+		done; \
+		cd ..; rm -rf $$folder; \
+	done ; \
+	ar rc libmicroros.a *.obj; mkdir -p $(BUILD_DIR); cp libmicroros.a $(BUILD_DIR); ranlib $(BUILD_DIR)/libmicroros.a; \
+	cd ..; rm -rf libmicroros;
 
 #######################################
 # build the application
