@@ -151,7 +151,7 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32L475xx\
+-DSTM32L475xx \
 -D_TIMEVAL_DEFINED
 
 
@@ -168,7 +168,7 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
 -IDrivers/CMSIS/Device/ST/STM32L4xx/Include \
--IDrivers/CMSIS/Include\
+-IDrivers/CMSIS/Include \
 -IDrivers/CMSIS/Include \
 -IFreeRTOS-Plus-POSIX/include \
 -IFreeRTOS-Plus-POSIX/include/portable/empty_portable \
@@ -219,7 +219,7 @@ LDSCRIPT = STM32L475VGTx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) --specs=nosys.specs -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
