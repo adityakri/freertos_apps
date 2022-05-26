@@ -88,7 +88,7 @@ Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
-Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c  
+Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \ 
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c \
 FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_clock.c \
